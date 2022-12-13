@@ -1,9 +1,46 @@
+<script src="https://code.jquery.com/jquery-3.6.1.min.js"
+    integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+
 <body>
-    <% for(let i of data){ %>
-    <h1>
-        <a href="./todo/<%=i.id%>">
-            <%= i.name %>
-        </a>
-    </h1>
-    <% } %>
+    <input type="text" id="todolistName" placeholder="todolist-name">
+    <button id="addTodolistBtn">new Todolist</button>
+    <ul id="todolist">
+    </ul>
 </body>
+<script>
+    let addTodolist = () => {
+        let name = $("#todolistName").val();
+        if ($.trim(name) == '') {
+            alert("todolist's name cannot be empty.");
+            return false;
+        }
+        $.ajax({
+            url: "./addTodo",
+            data: { name },
+            method: "POST",
+            dataType: "json"
+        }).done(rs => {
+            $("#todolist").append(`<li><h1><a href="./todo/${rs.id}">${rs.name}</a></h1></li>`);
+        }).fail(rs => console.error(rs));
+    }
+
+    let loadTodolist = () => {
+        $.ajax({
+            url: "./loadTodolist",
+            method: "GET",
+            dataType: "json"
+        }).done(rs => {
+            rs.forEach(element => {
+                let e = $("<a>", { href: `./todo/${element.id}`, text: element.name });
+                e = $("<h1>").append(e);
+                e = $("<li>").append(e);
+                $("#todolist").append(e);
+            });
+        }).fail(rs => console.error(rs));
+    }
+
+    $("body").ready(() => {
+        loadTodolist();
+        $("body").on("click", "#addTodolistBtn", addTodolist);
+    })
+</script>
