@@ -1,25 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <title>HELLO!! Nodejs + Express</title>
-</head>
-
 <body>
     <% for(let i of data){ %>
     <h1>
-        <%= i.id %>
-        <%= i.name %>
-        <%= i.content %>
+        <a href="./todo/<%=i.id%>">
+            <%= i.name %>
+        </a>
     </h1>
     <% } %>
-    <form method="post">
-        <input name="name">
-        <br>
-        <input name="content">
-        <button type="submit">送出</button>
-    </form>
 </body>
-
-</html>

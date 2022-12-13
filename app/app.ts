@@ -1,8 +1,7 @@
 import express from 'express';
 import path from 'path';
-import { Sequelize } from 'sequelize-typescript';
-import { TaskDetails } from './models/TaskDetails';
-import { TaskRelations } from './models/TaskRelations';
+import { PrismaClient } from '@prisma/client'
+
 const app = express();
 
 //view engine
@@ -12,32 +11,53 @@ app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({
     extended: true
-}))
-
-const sequelize = new Sequelize('mysql://root:@127.0.0.1:3306/todolist');
-sequelize.addModels([path.resolve(__dirname, `./models/`)])
+}));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+const database = new PrismaClient();
+
 //route
+app.get('/', async (req, res) => {
+    res.redirect('/todo');
+});
+
+
 app.get('/todo', async (req, res) => {
-    const results = await TaskDetails.findAll();
-    res.render('index', { data: results });
-    console.log(results);
-    
+    const todolist = await database.todolist.findMany();
+    res.render('index', { data: todolist });
 });
 
-app.get('/todo/:id', async(req, res) => {
-    const results = await TaskDetails.findByPk(req.params.id);
-    res.render('index', { data: results });
-    console.log(results);
+app.get('/todo/:id', async (req, res) => {
+    const tasks = await database.todolist.findUnique(
+        {
+            where: { id: parseInt(req.params.id) },
+            include: {
+                taskrelations:
+                {
+                    include: { taskdetails: true }
+                }
+            }
+        }
+    );
+
+    res.render('todo', { data: tasks?.taskrelations });
 });
 
-app.post('/todo', async (req, res) => {
-    console.table(req.body);
-    const task: TaskDetails = await TaskDetails.create({ ...req.body, finished:false, type:0 });
-    task.save();
-    res.sendStatus(200);
+app.post('/todo/:id', async (req, res) => {
+    const id = req.params.id;
+    await database.taskdetails.create({
+        data: {
+            name: req.body.name,
+            finished: false,
+            taskrelations: {
+                create: [
+                    { todolist: { connect: { id: parseInt(id) } }, },
+                ]
+            }
+        }
+    });
+    res.redirect(`/todo/${id}`);
 });
 
 //listening

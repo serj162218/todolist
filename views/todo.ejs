@@ -1,0 +1,16 @@
+<body>
+    <% 
+    if(data)
+        data.forEach(task => {
+    %>
+    <h1>
+        <%= task.taskdetails.id %>
+        <%= task.taskdetails.name %>
+        <%= task.taskdetails.finished %>
+    </h1>
+    <%  }); %>
+    <form method="post">
+        name: <input name="name">
+        <button type="submit">送出</button>
+    </form>
+</body>

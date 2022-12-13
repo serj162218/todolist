@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model taskdetails {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(100)
+  finished      Boolean
+  createdAt     DateTime        @default(now()) @db.DateTime(0)
+  updatedAt     DateTime        @default(now()) @db.DateTime(0)
+  taskrelations taskrelations[]
+}
+
+model taskrelations {
+  id          Int         @id @default(autoincrement())
+  task_id     Int
+  list_id     Int
+  todolist    todolist    @relation(fields: [list_id], references: [id], onDelete: Cascade, map: "foreign_list")
+  taskdetails taskdetails @relation(fields: [task_id], references: [id], onDelete: Cascade, map: "foreign_task")
+
+  @@index([list_id], map: "foreign_list")
+  @@index([task_id], map: "foreign_task")
+}
+
+model todolist {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(50)
+  taskrelations taskrelations[]
+}

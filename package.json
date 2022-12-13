@@ -10,15 +10,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^4.7.1",
     "express": "^4.18.2",
     "gulp": "^4.0.2",
-    "reflect-metadata": "^0.1.13",
-    "sequelize-typescript": "^2.1.5"
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/express": "^4.17.14",
     "@types/mysql": "^2.15.21",
-    "@types/node": "^18.11.10",
+    "@types/node": "^18.11.13",
     "@types/validator": "^13.7.10",
     "body-parser": "^1.20.1",
     "ejs": "^3.1.8",
@@ -28,9 +28,18 @@
     "mysql": "^2.18.1",
     "mysql2": "^2.3.3",
     "nodemon": "^2.0.20",
-    "sequelize": "^6.26.0",
+    "prisma": "^4.7.1",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.3"
+    "typescript": "^4.9.4"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/serj162218/todolist.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/serj162218/todolist/issues"
+  },
+  "homepage": "https://github.com/serj162218/todolist#readme",
   "description": ""
 }
