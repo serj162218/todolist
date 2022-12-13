@@ -22,7 +22,6 @@ app.get('/', async (req, res) => {
     res.redirect('/todo');
 });
 
-
 //listening
 app.listen(3000, () => {
     console.log("listening port on 3000.");

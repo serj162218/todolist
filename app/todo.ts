@@ -1,4 +1,5 @@
 import express from 'express';
+import { finished } from 'stream';
 import { database } from './config';
 
 const router = express.Router();
@@ -44,7 +45,7 @@ router.post('/addTodo', async (req, res) => {
 
 router.post('/todo/:id', async (req, res) => {
     const id = req.params.id;
-    await database.taskdetails.create({
+    const task = await database.taskdetails.create({
         data: {
             name: req.body.name,
             finished: false,
@@ -55,7 +56,35 @@ router.post('/todo/:id', async (req, res) => {
             }
         }
     });
-    res.redirect(`/todo/${id}`);
+    res.json(task);
+});
+
+router.delete('/todo', async (req, res) => {
+    const taskid = parseInt(req.body.id);
+
+    await database.taskdetails.delete({
+        where: {
+            id: taskid
+        },
+        include: {
+            taskrelations: true
+        }
+    });
+    res.sendStatus(200);
+});
+
+router.patch('/todo', async (req, res) => {
+    const taskid = parseInt(req.body.id);
+    const checked = req.body.checked === "true" ? true : false;
+    await database.taskdetails.update({
+        where: {
+            id: taskid
+        },
+        data: {
+            finished: checked
+        }
+    });
+    res.sendStatus(200);
 });
 
 export { router as todo }

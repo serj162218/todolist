@@ -4,32 +4,89 @@
 <body>
     <a href="/todo">Index</a>
     <h1 id="todolist-name"></h1>
-    <ul id="task-container">
-    </ul>
+    <ol id="task-container">
+    </ol>
     <form method="post">
-        name: <input name="name">
-        <button type="submit">submit</button>
+        name: <input name="name" id="taskName">
+        <button type="button" id="submitBtn">submit</button>
     </form>
 </body>
 <script>
-    let id = new URL(location.href).pathname.split('/')[2];
+    let todoID = new URL(location.href).pathname.split('/')[2];
     let loadTasks = () => {
-        if (!id.match(/\d/)) return;
+        if (!todoID.match(/\d/)) return;
+
         $.ajax({
-            url: `/loadTasks/${id}`,
+            url: `/loadTasks/${todoID}`,
             method: "GET",
             dataType: "json",
         }).done(rs => {
             $("#todolist-name").text(rs.name);
-            rs['taskrelations'].forEach(task=>{
-                let e = $("<h3>", { "d-id": task.taskdetails.id, text: task.taskdetails.name });
-                e = $("<li>").append(e);
+            rs['taskrelations'].forEach(task => {
+                let e = $("<span>", { text: task.taskdetails.name });
+                let btn = $("<button>", { class: 'deleteTaskBtn', text: 'x', "d-id": task.taskdetails.id });
+                let checkbox = $("<input>", { type: 'checkbox', class: 'checkTaskBtn', "d-id": task.taskdetails.id, "checked": task.taskdetails.finished });
+                
+                e = $("<li>", { "d-id": task.taskdetails.id }).append(btn, e, checkbox);
                 $("#task-container").append(e);
             });
         }).fail(rs => console.error(rs));
     }
 
+    let addTask = (e) => {
+        if (!todoID.match(/\d/)) return;
+
+        let name = $("#taskName").val();
+        if ($.trim(name) == '') {
+            alert("task's name cannot be empty.");
+            return false;
+        }
+        $.ajax({
+            url: `/todo/${todoID}`,
+            data: { name },
+            method: "POST",
+            dataType: "json"
+        }).done(task => {
+            let e = $("<span>", { text: task.name });
+            let btn = $("<button>", { class: 'deleteTaskBtn', text: 'x', "d-id": task.id });
+            let checkbox = $("<input>", { type: 'checkbox', class: 'checkTaskBtn', "d-id": task.id, "checked": task.finished });
+
+            e = $("<li>", { "d-id": task.id }).append(btn, e, checkbox);
+            $("#task-container").append(e);
+        }).fail(rs => console.error(rs));
+    }
+
+    let deleteTask = (e) => {
+        let id = $(e.target).attr('d-id');
+        $.ajax({
+            url: `/todo`,
+            data: { id },
+            method: "DELETE",
+            dataType: "text"
+        }).done(rs => {
+            $("#task-container").find(`li[d-id=${id}]`).remove();
+        }).fail(rs => console.error(rs));
+    }
+
+    let checkTask = (e) => {
+        let id = $(e.target).attr('d-id');
+        let checked = $(e.target).is(":checked");
+        console.log(checked);
+        $.ajax({
+            url: `/todo`,
+            data: { id, checked },
+            method: "PATCH",
+            dataType: "text"
+        }).done(rs => {
+
+        }).fail(rs => console.error(rs));
+    }
+
     $("body").ready(() => {
         loadTasks();
+        $("body").on("click", "#submitBtn", addTask);
+        $("body").on("click", ".deleteTaskBtn", deleteTask);
+        $("body").on("change", ".checkTaskBtn", checkTask);
     })
+
 </script>
